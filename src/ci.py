@@ -1,16 +1,24 @@
 #!/usr/bin/python
 
-from PIL import Image
-from pytesseract import *
+import sys, os
+import utils
 
-def getImageText(imgFilePath):
-	textImage = Image.open(imgFilePath)
-	imageText = image_to_string(textImage)
-	print imageText
 
 def init():
-	getImageText()
+    path = os.getcwd()
+    cypherTxt = utils.openFile(path + '/' + sys.argv[1])
+    if cypherTxt is not None:
+        cypherTxt = utils.stripWhiteSpace(cypherTxt)
+        cypherTxtLength = len(cypherTxt)
+        charFreq = characterCounts(cypherTxt)
+        print charFreq
+
+
+def characterCounts(txt):
+    freq = [0] * 26
+    for x in txt.lower():
+        freq[ord(x) - 97] += 1
+    return freq
 
 if __name__ == "__main__":
-	import sys
-	getImageText(sys.argv[1])
+    init()
