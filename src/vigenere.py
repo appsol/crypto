@@ -11,7 +11,7 @@ def init():
     cypherTxt = utils.openFile(path + '/' + sys.argv[1])
     cypherTxt = utils.stripWhiteSpace(cypherTxt)
     iocTable = calculateIoCTable(cypherTxt)
-    print iocTable
+    estimateKeyLength(iocTable)
 
 
 def calculateIoCTable(text, maxPeriod=20):
@@ -33,6 +33,13 @@ def getNPeriodCharacters(n, offset, text):
         nthCharacters.append(text[index])
         index += n
     return nthCharacters
+
+def estimateKeyLength(iocTable):
+    import operator
+    sortedIoC = sorted(iocTable.iteritems(), key=operator.itemgetter(1), reverse=True)
+    keys = [x for x, y in sortedIoC]
+    print sortedIoC
+    print keys
 
 if __name__ == '__main__':
     init()
