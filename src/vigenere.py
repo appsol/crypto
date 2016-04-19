@@ -3,6 +3,7 @@
 import sys
 import os
 import utils
+import operator
 from ioc import indexOfCoincidence
 
 
@@ -11,7 +12,8 @@ def init():
     cypherTxt = utils.openFile(path + '/' + sys.argv[1])
     cypherTxt = utils.stripWhiteSpace(cypherTxt)
     iocTable = calculateIoCTable(cypherTxt)
-    estimateKeyLength(iocTable)
+    keyLength = estimateKeyLength(iocTable)
+    print keyLength
 
 
 def calculateIoCTable(text, maxPeriod=20):
@@ -34,12 +36,22 @@ def getNPeriodCharacters(n, offset, text):
         index += n
     return nthCharacters
 
+
 def estimateKeyLength(iocTable):
-    import operator
     sortedIoC = sorted(iocTable.iteritems(), key=operator.itemgetter(1), reverse=True)
     keys = [x for x, y in sortedIoC]
-    print sortedIoC
-    print keys
+    candidates = {}
+    score = 3
+    for x in keys[:3]:
+        candidates[x] = score
+        score -= 1
+        for y in keys[:3]:
+            if x == y:
+                continue
+            if y % x == 0:
+                candidates[x] += 1
+    return max(candidates.iteritems(), key=operator.itemgetter(1))[0]
+
 
 if __name__ == '__main__':
     init()
