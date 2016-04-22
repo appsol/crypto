@@ -4,10 +4,7 @@ import sys
 import os
 import utils
 import operator
-import string
 from ioc import indexOfCoincidence
-
-tabulaRecta = None
 
 
 def init():
@@ -67,17 +64,6 @@ def estimateKeyLength(iocTable):
                 candidates[x] += 1
     # Return the highest scoring
     return max(candidates.iteritems(), key=operator.itemgetter(1))[0]
-
-
-def createTabulaRecta():
-    '''Create and store the lookup table for the Vigenere cypher'''
-    doubleAlphabet = string.lowercase + string.lowercase
-    tabulaRecta = [None] * 26
-    for n in xrange(0,25):
-        tabulaRecta[n] = doubleAlphabet[n:n+25]
-
-def lookUpTabulaRecta(textChar, keyChar, decrypt=True):
-    '''Look up a character in the Tabula Recta either to encrypt or decrypt'''
 
 
 def getBestKey(text, keyLength):

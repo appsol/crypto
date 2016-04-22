@@ -10,6 +10,7 @@ def init():
     if cypherTxt is not None:
         print indexOfCoincidence(cypherTxt)
 
+
 def indexOfCoincidence(text):
     '''Return the Index of Coincidence for the given text'''
     cypherTxt = utils.stripWhiteSpace(text)
@@ -17,6 +18,7 @@ def indexOfCoincidence(text):
     charFreq = characterCounts(cypherTxt)
     sumFreq = sumOfFrequencies(charFreq)
     return calcIoC(sumFreq, cypherTxtLength, charFreq)
+
 
 def characterCounts(txt):
     '''Count character frequency across the text'''
@@ -28,12 +30,14 @@ def characterCounts(txt):
             freq[x] = 1
     return freq
 
+
 def sumOfFrequencies(charFreq):
     '''Sum the potential of character coincidence'''
-	freqTotal = 0.0
-	for char, n in charFreq.iteritems():
-		freqTotal+= n * (n - 1)
-	return freqTotal
+    freqTotal = 0.0
+    for char, n in charFreq.iteritems():
+        freqTotal += n * (n - 1)
+    return freqTotal
+
 
 def calcIoC(sumOfFreq, txtLength, charFreq):
     '''Calculate the Index of Coincidence'''
