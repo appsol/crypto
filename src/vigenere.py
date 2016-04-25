@@ -5,6 +5,9 @@ import os
 import utils
 import operator
 from ioc import indexOfCoincidence
+import ngram_score
+
+ngramScore = None
 
 
 def init():
@@ -24,21 +27,34 @@ def calculateIoCTable(text, maxPeriod=20):
         iocSum = 0
         # Get mean ioc for all n period characters up to current key length (n)
         for offset in xrange(0, n-1):
-            nChars = getNPeriodCharacters(n, offset, text)
-            iocSum += indexOfCoincidence(''.join(nChars))
+            nChars = getNPeriodCharacters(n, text, 1, offset)
+            iocSum += indexOfCoincidence(nChars)
         iocTable[n] = iocSum / n
     return iocTable
 
 
-def getNPeriodCharacters(n, offset, text):
+# def getNPeriodCharacters(n, offset, text, length=1):
+#     '''Create list of nth characters (with a given offset) from the text'''
+#     textLength = len(text)
+#     index = offset
+#     nthCharacters = []
+#     while index < textLength:
+#         nthCharacters.append(text[index:index+length-1])
+#         index += n
+#     return nthCharacters
+
+def getNPeriodCharacters(period, text, length=1, offset=0):
     '''Create list of nth characters (with a given offset) from the text'''
+    if length >= period:
+        raise ValueError('The length should be less than the period')
+
     textLength = len(text)
     index = offset
     nthCharacters = []
     while index < textLength:
-        nthCharacters.append(text[index])
-        index += n
-    return nthCharacters
+        nthCharacters.append(text[index:index+length])
+        index += period
+    return ''.join(nthCharacters)
 
 
 def estimateKeyLength(iocTable):
@@ -70,8 +86,27 @@ def getBestKey(text, keyLength):
     '''Work through potential keys looking for best option'''
 
 
-def testKey(parent, testIndex, text):
+
+def testKey(parentKey, index, text):
     '''Recursive function to work through key possibilities until the best fit is found'''
+    global ngramScore
+    if ngramScore is None:
+        ngramScore = ngram_score.ngram_score(os.getcwd() + '/../data/english_quadgrams.txt')
+        childKey = parentKey
+        for n in xrange(0,25):
+            pass
+    newKey = incrementKey(parent, index)
+
+
+def incrementKey(key, index):
+    '''Change the character at index position in key to the next alphabetic character.
+    If the character is "z" return the key unchanged'''
+    key = list(key)
+    keyChar = ord(key[index]) - 97
+    if keyChar < 25:
+        key[index] = chr(keyChar + 98)
+    return ''.join(key)
+
 
 if __name__ == '__main__':
     init()

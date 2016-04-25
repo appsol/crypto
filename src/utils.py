@@ -1,6 +1,8 @@
 import re
 import string
 
+tabulaRecta = None
+
 def openFile(fileName):
     '''Open and read the passed text file'''
     try:
@@ -19,10 +21,12 @@ def stripWhiteSpace(txt):
 
 def createTabulaRecta():
     '''Create and store the lookup table for the Vigenere cypher'''
-    doubleAlphabet = string.lowercase + string.lowercase
-    tabulaRecta = [None] * 26
-    for n in xrange(0, 26):
-        tabulaRecta[n] = doubleAlphabet[n:n+26]
+    global tabulaRecta
+    if tabulaRecta is None:
+        doubleAlphabet = string.lowercase + string.lowercase
+        tabulaRecta = [None] * 26
+        for n in xrange(0, 26):
+            tabulaRecta[n] = doubleAlphabet[n:n+26]
     return tabulaRecta
 
 
