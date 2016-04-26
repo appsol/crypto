@@ -28,10 +28,10 @@ class TestVigenere(unittest.TestCase):
         ]
         newKeys = [
             'baaaaa',
-            'aaaaaz',
-            'zaaaaa',
+            'aaaaaa',
+            'aaaaaa',
             'zzzcaa',
-            'zzzzzz'
+            'zzzzza'
         ]
         results = []
         for k, i in keys:
@@ -49,6 +49,10 @@ class TestVigenere(unittest.TestCase):
         self.assertEqual(result, n2l1, "Failed with period of 2 and length of 1.\nExpected:\n%s\nGot:\n%s" % (n2l1, result))
         result = vigenere.getNPeriodCharacters(3, text, 2, 4)
         self.assertEqual(result, n3l2o4, "Failed with period of 3 a length of 2 and an offset of 4.\nExpected:\n%s\nGot:\n%s" % (n3l2o4, result))
+
+    def test_getBestKey(self):
+        key1 = vigenere.getBestKey(utils.stripWhiteSpace(cryptoText), 'aaaaaaa')
+        self.assertEqual(key1, 'ciphers', "Failed to find key.\nExpected: 'ciphers'\nGot: %s" % key1)
 
 if __name__ == '__main__':
     unittest.main()

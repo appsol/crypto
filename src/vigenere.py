@@ -9,7 +9,6 @@ import ngram_score
 
 ngramScore = None
 
-
 def init():
     path = os.getcwd()
     cypherTxt = utils.openFile(path + '/' + sys.argv[1])
@@ -33,20 +32,10 @@ def calculateIoCTable(text, maxPeriod=20):
     return iocTable
 
 
-# def getNPeriodCharacters(n, offset, text, length=1):
-#     '''Create list of nth characters (with a given offset) from the text'''
-#     textLength = len(text)
-#     index = offset
-#     nthCharacters = []
-#     while index < textLength:
-#         nthCharacters.append(text[index:index+length-1])
-#         index += n
-#     return nthCharacters
-
 def getNPeriodCharacters(period, text, length=1, offset=0):
     '''Create list of nth characters (with a given offset) from the text'''
-    if length >= period:
-        raise ValueError('The length should be less than the period')
+    if length > period:
+        raise ValueError('The length %d should be less than the period %d' % (length, period))
 
     textLength = len(text)
     index = offset
@@ -82,20 +71,53 @@ def estimateKeyLength(iocTable):
     return max(candidates.iteritems(), key=operator.itemgetter(1))[0]
 
 
-def getBestKey(text, keyLength):
+def findKey(text, keyLength):
     '''Work through potential keys looking for best option'''
 
 
 
-def testKey(parentKey, index, text):
-    '''Recursive function to work through key possibilities until the best fit is found'''
+def getBestKey(text, parentKey, parentScore=0, index=0, bestKeys=0):
+    '''Recurse through key possibilities until the best fit is found. Text is the
+    cryptoText string to test the key against, parentKey is a string key,
+    parentScore is the ngram score of that key, and index is the current
+    column of the key to be tested'''
+    scores = {}
+    childKey = parentKey
+    # Reset the index if we reach the end of the key
+    if index == len(childKey):
+        index = 0
+    nPeriodText = getNPeriodCharacters(len(childKey), text, index + 1)
+
+    # Get the ngram scores of all the child keys (aaaa -> zaaa)
+    for x in xrange(0,25):
+        plainText = decryptText(nPeriodText, childKey[:index + 1])
+        scores[childKey] = getNgramScore(plainText)
+        childKey = incrementKey(childKey, index)
+
+    # Find the highest scoring child key
+    bestChild = max(scores.iteritems(), key=operator.itemgetter(1))
+
+    # If this is better then the parent, set the parent equal to the child
+    if bestChild[1] > scores[parentKey]:
+        parentKey = bestChild[0]
+        parentScore = bestChild[1]
+    else:
+        # This was the best key for this column index
+        bestKeys += 1
+
+    if bestKeys < len(parentKey):
+        bestKey = getBestKey(text, parentKey, parentScore, index + 1, bestKeys)
+    else:
+        bestKey = parentKey
+
+    return bestKey
+
+
+def getNgramScore(text):
     global ngramScore
     if ngramScore is None:
-        ngramScore = ngram_score.ngram_score(os.getcwd() + '/../data/english_quadgrams.txt')
-        childKey = parentKey
-        for n in xrange(0,25):
-            pass
-    newKey = incrementKey(parent, index)
+        ngramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_quadgrams.txt')
+    return ngramScore.score(text.upper())
 
 
 def incrementKey(key, index):
@@ -103,9 +125,19 @@ def incrementKey(key, index):
     If the character is "z" return the key unchanged'''
     key = list(key)
     keyChar = ord(key[index]) - 97
-    if keyChar < 25:
+    if keyChar == 25:
+        key[index] = 'a'
+    else:
         key[index] = chr(keyChar + 98)
     return ''.join(key)
+
+
+def decryptText(text, key):
+    keyLength = len(key)
+    plainText = []
+    for i, c in enumerate(text):
+        plainText.append(utils.lookUpTabulaRecta(c, key[i % keyLength]))
+    return ''.join(plainText)
 
 
 if __name__ == '__main__':
