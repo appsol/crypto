@@ -11,7 +11,20 @@ def openFile(fileName):
         print "Cannot open %s for reading: %s" % (fileName, eStr)
         return None
     txt = txtFile.read()
+    txtFile.close()
     return txt
+
+
+def writeFile(fileName, text):
+    '''Open a file for writing and write the text to it'''
+    try:
+        txtFile = open(fileName, 'w')
+    except IOError as (eNum, eStr):
+        print "Cannot open %s for writing: %s" % (fileName, eStr)
+        return None
+    txtFile.write(str(text))
+    txtFile.close()
+    return fileName
 
 
 def stripWhiteSpace(txt):
@@ -43,3 +56,17 @@ def lookUpTabulaRecta(textChar, keyChar, decrypt=True):
         for c in tabulaRecta:
             if c[0] == textChar.lower():
                 return c[ord(keyChar.lower()) - 97]
+
+
+def getNPeriodCharacters(period, text, length=1, offset=0):
+    '''Create list of nth characters (with a given offset) from the text'''
+    if length > period:
+        raise ValueError('The length %d should be less than the period %d' % (length, period))
+
+    textLength = len(text)
+    index = offset
+    nthCharacters = []
+    while index < textLength:
+        nthCharacters.append(text[index:index+length])
+        index += period
+    return ''.join(nthCharacters)
