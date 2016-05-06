@@ -5,11 +5,7 @@ import os
 import utils
 from operator import itemgetter
 import ioc
-import ngram_score
 
-biGramScore = None
-triGramScore = None
-quadGramScore = None
 
 def init():
     '''Handles command line calls'''
@@ -21,7 +17,7 @@ def init():
     key = findKey(cypherTxt, keyLength)
     print "Final Key: %s of length %d" % (key, keyLength)
     plainText = decryptText(cypherTxt, key)
-    utils.writeFile(path + '/' + sys.argv[1] + '_plain.txt', plainText)
+    utils.writeFile(path + '/vigenere_plain.txt', plainText)
 
 
 def findKey(text, keyLength):
@@ -48,7 +44,7 @@ def getBestKey(text, parentKey, parentScore=0, index=0, bestKeys=0):
     # Get the ngram scores of all the child keys (aaaa -> zaaa)
     for x in xrange(0,25):
         plainText = decryptText(nPeriodText, childKey[:index + 1])
-        scores[childKey] = getNgramScore(plainText)
+        scores[childKey] = utils.getNgramScore(plainText)
         childKey = incrementKey(childKey, index)
     # for k,s in scores.iteritems():
     #     print "%s => %f\n" % (k,s)
@@ -71,25 +67,25 @@ def getBestKey(text, parentKey, parentScore=0, index=0, bestKeys=0):
     return bestKey
 
 
-def getNgramScore(text):
-    '''Score the similarity of the text to English using ngrams'''
-    global biGramScore
-    if biGramScore is None:
-        biGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_bigrams.txt')
-    biScore = biGramScore.score(text.upper())
-    global triGramScore
-    if triGramScore is None:
-        triGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_trigrams.txt')
-    triScore = triGramScore.score(text.upper())
-    global quadGramScore
-    if quadGramScore is None:
-        quadGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_quadgrams.txt')
-    quadScore = quadGramScore.score(text.upper())
-    # return quadScore
-    # return triScore
-    # return biScore
-    # return (triScore + quadScore) / 2
-    return (biScore + triScore + quadScore) / 3
+# def getNgramScore(text):
+#     '''Score the similarity of the text to English using ngrams'''
+#     global biGramScore
+#     if biGramScore is None:
+#         biGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_bigrams.txt')
+#     biScore = biGramScore.score(text.upper())
+#     global triGramScore
+#     if triGramScore is None:
+#         triGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_trigrams.txt')
+#     triScore = triGramScore.score(text.upper())
+#     global quadGramScore
+#     if quadGramScore is None:
+#         quadGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_quadgrams.txt')
+#     quadScore = quadGramScore.score(text.upper())
+#     # return quadScore
+#     # return triScore
+#     # return biScore
+#     # return (triScore + quadScore) / 2
+#     return (biScore + triScore + quadScore) / 3
 
 
 def incrementKey(key, index):

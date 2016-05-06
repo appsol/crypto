@@ -1,7 +1,13 @@
+import os
 import re
 import string
+import ngram_score
 
 tabulaRecta = None
+biGramScore = None
+triGramScore = None
+quadGramScore = None
+quinGramScore = None
 
 def openFile(fileName):
     '''Open and read the passed text file'''
@@ -70,3 +76,34 @@ def getNPeriodCharacters(period, text, length=1, offset=0):
         nthCharacters.append(text[index:index+length])
         index += period
     return ''.join(nthCharacters)
+
+
+def getNgramScore(text, n=4):
+    '''Score the similarity of the text to English using ngrams'''
+    if n == 2:
+        global biGramScore
+        if biGramScore is None:
+            biGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_bigrams.txt')
+        score = biGramScore.score(text.upper())
+    elif n == 3:
+        global triGramScore
+        if triGramScore is None:
+            triGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_trigrams.txt')
+        score = triGramScore.score(text.upper())
+    elif n == 4:
+        global quadGramScore
+        if quadGramScore is None:
+            quadGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_quadgrams.txt')
+        score = quadGramScore.score(text.upper())
+    elif n == 5:
+        global quinGramScore
+        if quinGramScore is None:
+            quinGramScore = ngram_score.ngram_score(os.getcwd() + '/data/english_quingrams.txt')
+        score = quinGramScore.score(text.upper())
+    else:
+        biScore = getNgramScore(text, 2)
+        triScore = getNgramScore(text, 3)
+        quadScore = getNgramScore(text, 4)
+        quinScore = getNgramScore(text, 5)
+        score =  (biScore + triScore + quadScore + quinScore) / 4
+    return score
